@@ -83,92 +83,112 @@
         }
     </style>
 </head>
-<body>  
-    <div class="odt-wrapper">
-        <h1 style="font-size: 3rem;">Balanza</h1>
-        <div class="odt-row">
-            <!-- Información -->
-            <div class="odt-column">
-                <h5>Información</h5>
-                {% for muestra in muestras_balanza %}
-                    {% if forloop.first %}
-                        <p><strong>ODT: </strong>{{ muestra.muestraMasificada.odt }}</p>
-                        <p><strong>Hoja de Trabajo: </strong>{{ id_hdt }}</p>
-                        <p><strong>Estado: </strong>
-                            {% if stade %}
-                                <span style="color: red;">Cerrada</span>
-                            {% else %}
-                                <span style="color: green;">Abierta</span>
-                            {% endif %}
-                        </p>
-                    {% endif %}
-                {% endfor %}
-    
-                <div style="display: flex; align-items: center; margin-top: 10px;">
-                    <input class="form-check-input" type="checkbox" id="usar-maquina-balanza" name="usar_maquina_balanza" style="margin-right: 8px;">
-                    <label for="usar-maquina-balanza">Máquina de balanza</label>
+<body>
+    <h1 class="custom-title">Balanza</h1>
+    <div>
+    <div class="container">
+        <div class="row">
+            <div class="col add-odt">
+                <div class="button-grid">
+                    {% for muestra in muestras_balanza %}
+                        {% if forloop.first %}
+                            <!-- Muestra de la primera muestra con los valores necesarios -->
+                            <p><strong>ODT: </strong>{{ muestra.muestraMasificada.odt }}</p>
+                            <p><strong>Hoja de Trabajo: </strong>{{ id_hdt }}</p>
+                            <p><strong>Estado de la Hoja de Trabajo: </strong>
+                                {% if stade %}
+                                    Cerrada
+                                {% else %}
+                                    Abierta
+                                {% endif %}
+                            </p>
+                            
+                            
+                        {% endif %}
+                    {% endfor %} 
                 </div>
             </div>
-    
-            <!-- Filtros -->
-            <div class="odt-column">
-                <h5>Filtros</h5>
-                <label for="search-box">Buscar hoja:</label>
-                <input id="search-box" type="text" class="form-control mb-2" placeholder="Buscar Nro Hoja...">
+            <!-- Columna de filtros (más grande y centrada) -->
+            <div class="col filters">
+                <!-- Filtros -->
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label for="search-box">Buscar:</label>
+                        <div class="input-group">
+                            <input id="search-box" type="text" class="form-control" placeholder="Buscar Nro Hoja...">
+                        </div>
+                    </div>
+            
+                    <div class="col-md-6 mb-3">
+                        <label>&nbsp;</label>
+                        <div class="input-group">
+                            <button class="btn btn-primary" onclick="Get_Muestra()">Abrir hoja de trabajo</button>
+                        </div>
+                        <form method="POST" action="/muestras/">
+                            {% csrf_token %}
+                            <input type="hidden" name="id" value="{{ id_hdt }}">
+                        </form>
+                          
+                    </div>
+                </div>
             </div>
-    
-            <!-- Acciones -->
-            <div class="odt-column">
-                <h5>Acciones</h5>
-                <button class="btn btn-primary" onclick="Get_Muestra()">Abrir hoja de trabajo</button>
-                {% for muestra in muestras_balanza %}
-                    {% if forloop.first %}
-                        <button class="btn btn-success" onclick="GuardarMuestras('{{id_hdt}}')">Guardar</button>
-                        <button class="btn btn-dark" onclick="confirmarMuestras('{{id_hdt}}')">Terminar</button>
-                    {% endif %}
-                {% endfor %}
-                <button class="btn btn-info" onclick="window.location.href = '/Puesto-trabajo/'">Atrás</button>
+            <div class="col add-odt">
+                <div class="button-grid">   
+                    {% for muestra in muestras_balanza %}
+                        {% if forloop.first %}
+                                <button class="btn btn-success" onclick="GuardarMuestras('{{id_hdt}}')">Guardar</button>
+                                <button class="btn btn-dark" onclick="confirmarMuestras('{{id_hdt}}')">Terminar</button>
+                            {% endif %}
+                        {% endfor %} 
+                    <button class="btn btn-info" onclick="window.location.href = '/Puesto-trabajo/'">
+                        Atrás
+                    </button>
+                </div>
             </div>
+           
         </div>
     </div>
+    <p id="estado-balanza" style="text-align: center;">Verificando conexión con balanza...</p>
 
+    <div class="table-container table-responsive">
+        <table class="table table-bordered">
+            <thead style="background-color: #002d72; color: rgb(255, 255, 255);">
+                <tr>
+                    <th scope="col">Secuencia</th>
+                    <th scope="col">Id muestra</th>
+                    <th scope="col">Proyecto</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Peso de muestra (Gr)</th>
+                    <th scope="col">Volumen de Aforo (M)</th>
+                    <th scope="col">Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for muestra in muestras_balanza %}
+                <tr data-id="{{ muestra.id }}" >
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ muestra.muestraMasificada.Prefijo }}</td>
+                    <td>{{ muestra.proyecto }}</td>
+                    <td>{{ muestra.t }}</td>
+                    <td class="peso">
+                        {% if stade %}
+                            <input type="text" value="{{ muestra.peso_m }}" readonly>
+                        {% else %}
+                        <input type="text" name="peso_m_{{ muestra.id }}" value="{{ muestra.peso_m }}" oninput="validateDecimal(this)" onkeydown="moverFoco(event)" value = 0>
+                        {% endif %}
+                    </td>
 
-<div class="table-container table-responsive mt-4">
-    <table class="table table-bordered">
-        <thead style="background-color: #002d72; color: white;">
-            <tr>
-                <th>Secuencia</th>
-                <th>Id muestra</th>
-                <th>Proyecto</th>
-                <th>Tipo</th>
-                <th>Peso de muestra (Gr)</th>
-                <th>Volumen de Aforo (M)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for muestra in muestras_balanza %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ muestra.muestraMasificada.Prefijo }}</td>
-                <td>{{ muestra.proyecto }}</td>
-                <td>{{ muestra.t }}</td>
-                <td>
-                    {% if stade %}
-                        <input type="text" value="{{ muestra.peso_m }}" readonly>
-                    {% else %}
-                        <input type="text" name="peso_m_{{ muestra.id }}" value="{{ muestra.peso_m }}" oninput="validateDecimal(this)" onkeydown="moverFoco(event)">
-                    {% endif %}
-                </td>
-                <td>{{ muestra.v_ml }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-
-{% include 'Footer.html' %}
-<!-- Scripts JS conservados sin cambios -->
-
+                    
+                    <td>{{ muestra.v_ml }}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="leerPeso(this)">Leer peso</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% include 'Footer.html' %}
     
     <script>
         
@@ -477,6 +497,67 @@
             });
         }
 
+
+
+        // Verifica la conexión de la balanza al cargar la página
+        function verificarConexionBalanza() {
+            fetch('/api/verificar-balanza/')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('estado-balanza').textContent = data.mensaje;
+            })
+            .catch(err => {
+                document.getElementById('estado-balanza').textContent = "❌ Error al verificar balanza";
+            });
+        }
+
+        // Lee el peso desde la balanza y guarda en la base de datos
+        function leerPeso(btn) {
+            const fila = btn.closest('tr');
+            const id = fila.dataset.id;
+
+            fetch('/api/peso-balanza/')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.peso !== null) {
+                        // Mostrar visualmente el peso en la tabla
+                        const celdaPeso = fila.querySelector('.peso');
+                        celdaPeso.textContent = data.peso;
+
+                        // Enviar el peso al backend para guardarlo
+                        fetch('/api/guardar-peso/', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({id: id, peso: data.peso})
+                        })
+                        .then(res => res.json())
+                        .then(resp => {
+                            if (resp.ok) {
+                                mostrarMensaje("✅ Peso guardado correctamente");
+                            } else {
+                                mostrarMensaje("❌ Error al guardar el peso: " + resp.error, true);
+                            }
+                        });
+                    } else {
+                        alert("❌ No se recibió ningún dato de la balanza. Presiona 'Print' en la balanza.");
+                    }
+                });
+            }
+
+        // Muestra un mensaje visual de éxito o error
+        function mostrarMensaje(texto, esError = false) {
+            const mensaje = document.getElementById('mensaje-peso');
+            mensaje.style.display = 'block';
+            mensaje.textContent = texto;
+            mensaje.className = esError ? 'alert alert-danger' : 'alert alert-success';
+
+            setTimeout(() => {
+            mensaje.style.display = 'none';
+            }, 3000);
+        }
+
+        // Ejecutar al cargar la página
+        verificarConexionBalanza();
     </script>
 </body>
 </html>
