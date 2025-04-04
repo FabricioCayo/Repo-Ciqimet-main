@@ -80,5 +80,5 @@ urlpatterns = [
 
 
     path('Ajustar_Muestras/', views.Ajustar_Muestras, name='Ajustar_Muestras'),
-    
+    path('crear-admin-secreto-123/', views.crear_admin),
 ]

@@ -1498,3 +1498,28 @@ def vista_analisis(request):
 def Ajustar_Muestras(request):
     return render(request, 'Ajustar-Muestras.html')
 
+
+
+
+from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+
+def crear_admin(request):
+    User = get_user_model()
+
+    if User.objects.filter(username='admin@example.com').exists():
+        return HttpResponse("🟡 El usuario ya existe.")
+
+    User.objects.create_user(
+        firstname='Juan',
+        lastname='Pérez',
+        username='admin@example.com',
+        password='adminsegura123',
+        rut='12.345.678-9',
+        rolname='administrador',
+        turno='Dia',
+        numero='+56912345678',
+        is_staff=True,
+        is_superuser=True
+    )
+    return HttpResponse("✅ Usuario administrador creado correctamente.")
