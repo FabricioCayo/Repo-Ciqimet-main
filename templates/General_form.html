@@ -1,0 +1,398 @@
+{% load static %}
+<!DOCTYPE html>
+{% include 'header.html' %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario General</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+        
+        @media (min-width: 601px) {
+            #myForm {
+                display: grid;
+                gap: 15px; /* Espacio entre columnas */
+                background-color: #ffffff; /* Fondo blanco */
+                border: 2px solid #00796b; /* Azul claro */
+                border-radius: 8px; /* Bordes redondeados */
+                padding: 20px; /* Espacio interno */
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+                min-height: 70vh; /* El formulario ocupa el 70% de la altura de la pantalla */
+                align-content: start; /* Asegura que los elementos internos no se desborden */
+                width: 100%; /* Asegura que ocupe todo el ancho disponible */
+            }
+        
+            /* Estilo para los grupos de campos */
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+        
+            .form-group label {
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+        
+            .form-group input,
+            .form-group select {
+                width: 100%;
+                padding: 8px;
+                border-radius: 4px;
+                border: 1px solid #00796b; /* Azul claro */
+                background-color: #ffffff; /* Blanco */
+            }
+        
+            .form-group input:focus,
+            .form-group select:focus {
+                border-color: #004d40; /* Azul más oscuro */
+                box-shadow: 0 0 3px rgba(0, 77, 64, 0.3); /* Sombra azul más oscura */
+                outline: none;
+            }
+        
+            .form-group input::placeholder,
+            .form-group select::placeholder {
+                color: #004d40; /* Azul oscuro */
+                font-style: italic; /* Cursiva para el texto de marcador de posición */
+            }
+        
+            /* Estilo para los botones del formulario */
+            .btn-submit {
+                grid-column: span 2; /* El botón ocupa toda la fila en pantallas grandes */
+                margin-top: 15px;
+                background-color: #ffab40; /* Naranja claro */
+                color: #ffffff;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 15px;
+                font-weight: 600;
+                transition: background-color 0.3s ease;
+            }
+        
+            .btn-submit:hover {
+                background-color: #ff9800; /* Naranja más oscuro */
+            }
+        }
+
+        
+    
+        /* Estilos para pantallas pequeñas */
+    @media (max-width: 600px) {
+        #myForm {
+            display: block; /* Diseño en columna para pantallas pequeñas */
+            background-color: #ffffff; /* Fondo blanco para contraste */
+            border: none; /* Sin borde para un diseño más limpio */
+            border-radius: 0; /* Sin bordes redondeados */
+            padding: 10px; /* Espacio interno reducido */
+            box-shadow: none; /* Sin sombra para simplicidad */
+        }
+
+        /* Estilo para los grupos de campos */
+        .form-group {
+            margin-bottom: 10px; /* Espacio entre grupos de campos */
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 16px; /* Tamaño de fuente ajustado para pantallas pequeñas */
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: calc(100% - 16px); /* Ajuste del ancho para incluir padding */
+            padding: 10px; /* Padding aumentado para mejor accesibilidad */
+            border-radius: 4px;
+            border: 1px solid #00796b; /* Azul claro */
+            background-color: #ffffff; /* Blanco */
+            font-size: 16px; /* Tamaño de fuente ajustado */
+            box-sizing: border-box; /* Incluye padding en el ancho total */
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #004d40; /* Azul más oscuro */
+            box-shadow: 0 0 3px rgba(0, 77, 64, 0.3); /* Sombra azul más oscura */
+            outline: none;
+        }
+
+        .form-group input::placeholder,
+        .form-group select::placeholder,
+        .form-group textarea::placeholder {
+            color: #004d40; /* Azul oscuro */
+            font-style: italic; /* Cursiva para el texto de marcador de posición */
+        }
+
+        /* Estilo para los botones del formulario */
+        .btn-submit {
+            margin-top: 15px;
+            background-color: #ffab40; /* Naranja claro */
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 20px; /* Padding aumentado para mejor accesibilidad */
+            font-weight: 600;
+            font-size: 16px; /* Tamaño de fuente ajustado */
+            width: 100%; /* El botón ocupa todo el ancho en pantallas pequeñas */
+            box-sizing: border-box; /* Incluye padding en el ancho total */
+        }
+
+        .btn-cancel {
+            margin-top: 15px;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 20px; /* Padding aumentado para mejor accesibilidad */
+            font-weight: 600;
+            font-size: 16px; /* Tamaño de fuente ajustado */
+            width: 100%; /* El botón ocupa todo el ancho en pantallas pequeñas */
+            box-sizing: border-box; /* Incluye padding en el ancho total */
+        }
+
+        .btn-submit:hover {
+            background-color: #ff9800; /* Naranja más oscuro */
+        }
+    }
+    
+        /* Estilos para dispositivos de más de 600px */
+        @media (min-width: 601px) {
+            #myForm {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Dos columnas en pantallas grandes */
+            }
+        }
+    
+        /* Tooltip */
+        [data-bs-toggle="tooltip"] {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="custom-title">
+            {% if contexModel == 'element' %}
+                {% if action == 'add' %}
+                    Añadir Elemento
+                {% elif action == 'mod' %}
+                    Modificar Elemento
+                {% endif %}
+            {% elif contexModel == 'ODT' %}
+                {% if action == 'add' %}
+                    Añadir Orden de Trabajo
+                {% elif action == 'mod' %}
+                    Modificar Orden de Trabajo
+                {% endif %}
+            {% elif contexModel == 'curv' %}
+                {% if action == 'add' %}
+                    Añadir Curvatura de Elemento
+                {% elif action == 'mod' %}
+                    Modificar Curvatura de Elemento
+                {% endif %}
+            {% elif contexModel == 'HDT' %}
+                {% if action == 'add' %}
+                    Añadir Hoja de Trabajo
+                {% elif action == 'mod' %}
+                    Modificar Hoja de Trabajo
+                {% endif %}
+            {% elif contexModel == 'analytic' %}
+                {% if action == 'add' %}
+                    Añadir Análisis de Trabajo
+                {% elif action == 'mod' %}
+                    Modificar Análisis de Trabajo
+                {% endif %}
+            {% elif contexModel == 'User' %}
+                {% if action == 'add' %}
+                    Añadir Usuario
+                {% elif action == 'mod' %}
+                    Modificar Usuario
+                {% endif %}
+            {% endif %}
+
+        </h1>
+        {% if form %}
+        <form id="myForm" method="POST" action="Action-Resource/">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger mt-2">
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}"
+                           data-bs-toggle="tooltip" 
+                           data-bs-placement="top" 
+                           title="{{ field.help_text }}">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="alert alert-danger mt-2">
+                            {{ field.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary btn-submit">
+                {% if action == 'add' %}
+                    Agregar
+                {% elif action == 'mod' %}
+                    Modificar
+                {% endif %}
+            </button>
+            <button type="button" class="btn btn-secondary btn-cancel" onclick="window.location.href='{% if contexModel == 'element' %}/Elements-Manager/{% elif contexModel == 'curv' %}/Elements-Manager/{% elif contexModel == 'ODT' %}/ODT/{% elif contexModel == 'HDT' %}/ODT/{% elif contexModel == 'analytic' %}/Analysis-Manager/{% elif contexModel == 'User' %}/users/{% endif %}'">Cancelar</button>
+
+        </form>
+    <br/>
+    {% if id != "-1" %}
+    <div class="text-center">
+        <button class="btn btn-danger btn-lg btn-alert" onclick='OnDeleteRegister()'>Borrar</button>
+    </div>
+        <br/><br/>
+    {% endif %}
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                No hay formulario disponible.
+            </div>
+        {% endif %}
+        {% if message %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+        {% if success %}
+            <div class="alert alert-success" role="alert">
+                Acción realizada con éxito.
+            </div>
+        {% endif %}
+    </div>
+    
+</body>
+
+{% include 'Footer.html' %}
+
+<script>
+    
+
+    function OnDeleteRegister() {
+               
+        Swal.fire({
+            title: '¿Estás seguro que quieres eliminar este registro?',
+            text: "Esta acción no se puede deshacer.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Eliminar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#d33', 
+            cancelButtonColor: '#3085d6',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const elementId = "{{ id }}";
+                const urlDat = '/MasterData/';
+                const Token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                const context = "{{ contexModel }}"; 
+                const action = 'del'; 
+                const stade = "acces"; 
+                
+                $.ajax({
+                    url: urlDat,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': Token
+                    },
+                    data: {
+                        'id': elementId,
+                        'action': action,
+                        'context': context,
+                        'stade': stade
+                    },
+                    success: function(response) {
+                        window.location.href = response.redirect_url;
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire(
+                            'Error!',
+                            'No se pudo eliminar el registro.',
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    }
+
+
+    function addToFormula(symbol) {
+        const textarea = document.getElementById('formula');
+        textarea.value += symbol;
+        textarea.focus();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        tooltips.forEach(tooltip => {
+            new bootstrap.Tooltip(tooltip);
+        });
+    });
+
+
+    function ajustarURL() {
+        let currentURL = window.location.href;
+    
+        // Detectar si la URL termina en "Action-Resource/"
+        if (currentURL.endsWith("Action-Resource/")) {
+            // Eliminar el último "Action-Resource/"
+            let newURL = currentURL.slice(0, -("Action-Resource/".length));
+    
+            // Reemplazar la URL actual en el navegador sin acceder a la nueva URL
+            window.history.replaceState(null, null, newURL);
+        }
+    }
+    
+    // Ejecutar la función cuando ocurra un error en el formulario
+    window.addEventListener('load', function() {
+        // Asume que si hay errores visibles, es que hubo un error de validación en el formulario
+        let errorElements = document.querySelectorAll('.alert-danger');
+        if (errorElements.length > 0) {
+            ajustarURL();
+        }
+    });
+
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const numberInputs = document.querySelectorAll('input[type="number"]');
+    
+        numberInputs.forEach(input => {
+            input.addEventListener('input', function() {
+                let value = this.value;
+    
+                const min = parseFloat(this.min) || -Infinity;
+                const max = parseFloat(this.max) || Infinity; 
+    
+                if (isNaN(value) || value === '') {
+                    this.value = '0';
+                } else {
+                    value = parseFloat(value);
+    
+                    if (value < min) {
+                        this.value = min; 
+                    } else if (value > max) {
+                        this.value = max; 
+                    }
+                }
+            });
+        });
+    });
+    
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</html>

@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+{% include 'header.html' %}
+{% csrf_token %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elementos</title>
+</head>
+<style>
+
+    body {
+        background-color: #c5c5c5;
+        font-family: Arial, Helvetica, sans-serif;
+        }
+    .odt-wrapper {
+        max-width: 85%;
+        margin: 20px auto;
+        padding: 15px 20px;
+        background-color: white;
+        border-radius: 10px;
+        border: 3px solid #fcc058;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #fcc058;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .odt-wrapper .btn {
+        background-color: #214c67;
+        border: none;
+        color: white;
+        font-weight: bold;
+        padding: 8px 12px;
+        transition: background-color 0.3s ease;
+    }
+
+    .odt-wrapper .btn:hover {
+        background-color: #163347;
+        color: white;
+    }
+
+    .odt-wrapper .btn-primary {
+        background-color: #fcc058;
+        color: black;
+    }
+
+    .odt-wrapper .btn-primary:hover {
+        background-color: #e0a046;
+        color: black;
+    }
+</style>
+
+<div class="odt-wrapper">
+    <h1 style="font-size: 3rem;">Registros de elementos</h1>
+
+    <div class="row mb-3">
+        <!-- Buscar -->
+        <div class="col-md-6">
+            <label for="search-box">Buscar:</label>
+            <input id="search-box" type="text" class="form-control" placeholder="Buscar elementos...">
+        </div>
+
+        <!-- Acciones -->
+        <div class="col-md-6">
+            <label for="acciones">Acciones:</label>
+            <div class="row g-3"> <!-- Espacio horizontal entre botones -->
+                <div class="col-auto">
+                    <button class="btn btn-primary" onclick="addElement()">Añadir elementos</button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn" onclick="window.location.href = '/ODT'">Atrás</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="table-container">
+
+        {% if elementos %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead style="background-color: #002d72; color: rgb(255, 255, 255);">
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Gramos</th>
+                    <th scope="col">Miligramos</th>
+                    <th scope="col">Acción</th>
+                </tr>
+            </thead>
+            <tbody id="element-table-body">
+                {% for item in elementos %}
+                    <tr class="{% if item.enabled %}active{% else %}inactive{% endif %}">
+                        <td>{{ item.nombre }}</td>
+                        <td>{{ item.gramos|floatformat:0 }}</td>
+                        <td>{{ item.miligramos|floatformat:0 }}</td>
+                        <td>
+                            <button class="btn btn-primary action-btn" data-id="{{ item.id }}">Modificar</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-warning" role="alert">
+        Sin elementos asignados al sistema.
+    </div>
+{% endif %}
+    </div>
+    </div>
+    <script>
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        $(document).ready(function() {
+            $('#filter-type').on('change', function() {
+                filterElements();
+            });
+        
+            $('#filter-enabled').on('change', function() {
+                filterElements();
+            });
+        
+            $('#search-box').on('input', function() {
+                searchElements();
+            });
+        
+            $('.action-btn').on('click', function() {
+                const elementId = $(this).data('id');;
+                const urlDat = '/MasterData/';
+                const Token = csrfToken;
+                const context = 'element'; 
+                const action = 'mod'; 
+                const stade = "acces"; 
+                $.ajax({
+                    url: urlDat,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': Token
+                    },
+                    data: {
+                        'id': elementId,
+                        'context': context,
+                        'action': action,
+                        'stade': stade
+                    },
+                    success: function(response) {
+                        if (response.redirect_url) {
+                            window.location.href = response.redirect_url; 
+                        } else {
+                            console.log(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error al enviar datos:', xhr.responseText);
+                    }
+                });
+              
+            });
+
+            $('.curvatura-btn').on('click', function() {
+                const curvaturaId = $(this).data('curvatura-id');
+                const urlDat = '/MasterData/';
+                const Token = csrfToken;
+                const context = 'curv'; 
+                const action = 'mod'; 
+                const stade = "acces"; 
+                $.ajax({
+                    url: urlDat,
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': Token
+                    },
+                    data: {
+                        'id': curvaturaId,
+                        'context': context,
+                        'action': action,
+                        'stade': stade
+                    },
+                    success: function(response) {
+                        if (response.redirect_url) {
+                            window.location.href = response.redirect_url; 
+                        } else {
+                            console.log(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Error al enviar datos:', xhr.responseText);
+                    }
+                });
+            });
+
+        });
+
+        function filterElements() {
+            const typeFilter = $('#filter-type').val();
+            const url = new URL(window.location.href);
+            url.searchParams.set('tipo', typeFilter);
+            window.location.href = url.toString();
+        }
+
+        function searchElements() {
+            const searchTerm = $('#search-box').val().toLowerCase();
+            $('#element-table-body tr').each(function() {
+                const cells = $(this).find('td');
+                const matches = cells.toArray().some(cell => $(cell).text().toLowerCase().includes(searchTerm));
+                $(this).toggle(matches);
+            });
+        }
+
+    
+        function addElement()
+        {
+            const elementId = -1;
+            const urlDat = '/MasterData/';
+            const Token = csrfToken;
+            const context = 'element'; 
+            const action = 'add'; 
+            const stade = "acces"; 
+            $.ajax({
+                url: urlDat,
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': Token
+                },
+                data: {
+                    'id': elementId,
+                    'context': context,
+                    'action': action,
+                    'stade': stade
+                },
+                success: function(response) {
+                    if (response.redirect_url) {
+                        window.location.href = response.redirect_url; 
+                    } else {
+                        console.log(response.message);
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error al enviar datos:', xhr.responseText);
+                }
+            });
+        }
+
+    
+    </script>
+</body>
+
+{% include 'Footer.html' %}
+
+</html>

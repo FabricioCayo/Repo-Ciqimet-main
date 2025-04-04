@@ -1,0 +1,482 @@
+{% load static %}
+<!DOCTYPE html>
+{% include 'header.html'%}
+{% csrf_token %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODT Display</title>
+    <style>
+        body {
+            background-color: #c5c5c5;
+        
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        /* Estilo general unificado */
+        .odt-wrapper {
+            max-width: 95%;
+            margin: 10px auto;
+            padding: 15px 20px;
+            background-color: white;
+            border-radius: 10px;
+            border: 3px solid #fcc058;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #fcc058;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .odt-wrapper h5 {
+            text-align: center;
+            font-weight: bold;
+            color: #214c67;
+        }
+
+        .odt-wrapper .btn {
+            background-color: #214c67;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 8px 12px;
+            margin: 4px 0;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .odt-wrapper .btn:hover {
+            background-color: #163347;
+        }
+
+        .odt-wrapper .btn-primary {
+            background-color: #fcc058;
+            color: black;
+        }
+
+        .odt-wrapper .btn-primary:hover {
+            background-color: #e0a046;
+        }
+
+        /* Responsive en filas */
+        .odt-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .odt-column {
+            flex: 1 1 30%;
+            min-width: 250px;
+        }
+
+        .table-container {
+            max-width: 95%;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>  
+    <div class="odt-wrapper">
+        <h1 style="font-size: 3rem;">Balanza</h1>
+        <div class="odt-row">
+            <!-- Información -->
+            <div class="odt-column">
+                <h5>Información</h5>
+                {% for muestra in muestras_balanza %}
+                    {% if forloop.first %}
+                        <p><strong>ODT: </strong>{{ muestra.muestraMasificada.odt }}</p>
+                        <p><strong>Hoja de Trabajo: </strong>{{ id_hdt }}</p>
+                        <p><strong>Estado: </strong>
+                            {% if stade %}
+                                <span style="color: red;">Cerrada</span>
+                            {% else %}
+                                <span style="color: green;">Abierta</span>
+                            {% endif %}
+                        </p>
+                    {% endif %}
+                {% endfor %}
+    
+                <div style="display: flex; align-items: center; margin-top: 10px;">
+                    <input class="form-check-input" type="checkbox" id="usar-maquina-balanza" name="usar_maquina_balanza" style="margin-right: 8px;">
+                    <label for="usar-maquina-balanza">Máquina de balanza</label>
+                </div>
+            </div>
+    
+            <!-- Filtros -->
+            <div class="odt-column">
+                <h5>Filtros</h5>
+                <label for="search-box">Buscar hoja:</label>
+                <input id="search-box" type="text" class="form-control mb-2" placeholder="Buscar Nro Hoja...">
+            </div>
+    
+            <!-- Acciones -->
+            <div class="odt-column">
+                <h5>Acciones</h5>
+                <button class="btn btn-primary" onclick="Get_Muestra()">Abrir hoja de trabajo</button>
+                {% for muestra in muestras_balanza %}
+                    {% if forloop.first %}
+                        <button class="btn btn-success" onclick="GuardarMuestras('{{id_hdt}}')">Guardar</button>
+                        <button class="btn btn-dark" onclick="confirmarMuestras('{{id_hdt}}')">Terminar</button>
+                    {% endif %}
+                {% endfor %}
+                <button class="btn btn-info" onclick="window.location.href = '/Puesto-trabajo/'">Atrás</button>
+            </div>
+        </div>
+    </div>
+
+
+<div class="table-container table-responsive mt-4">
+    <table class="table table-bordered">
+        <thead style="background-color: #002d72; color: white;">
+            <tr>
+                <th>Secuencia</th>
+                <th>Id muestra</th>
+                <th>Proyecto</th>
+                <th>Tipo</th>
+                <th>Peso de muestra (Gr)</th>
+                <th>Volumen de Aforo (M)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for muestra in muestras_balanza %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ muestra.muestraMasificada.Prefijo }}</td>
+                <td>{{ muestra.proyecto }}</td>
+                <td>{{ muestra.t }}</td>
+                <td>
+                    {% if stade %}
+                        <input type="text" value="{{ muestra.peso_m }}" readonly>
+                    {% else %}
+                        <input type="text" name="peso_m_{{ muestra.id }}" value="{{ muestra.peso_m }}" oninput="validateDecimal(this)" onkeydown="moverFoco(event)">
+                    {% endif %}
+                </td>
+                <td>{{ muestra.v_ml }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% include 'Footer.html' %}
+<!-- Scripts JS conservados sin cambios -->
+
+    
+    <script>
+        
+
+        // Script para manejar clic en filas de la tabla
+
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Script para manejar clic en filas de la tabla
+        document.addEventListener('DOMContentLoaded', function () {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                row.addEventListener('click', function () {
+                    const odtId = this.getAttribute('data-odt-id');
+                    if (odtId) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/ODT-info/';
+                        form.style.display = 'none'; // Para evitar que el formulario se vea
+                        form.innerHTML = `<input type="hidden" name="odt_id" value="${odtId}">
+                                            <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">`;
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+
+
+        function Get_Muestra() {
+            event.preventDefault();
+    
+            // Obtén el valor de búsqueda del input
+            var search = document.getElementById('search-box').value;
+    
+            // Crea el formulario de envío
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/Balanza/';
+    
+            // Agrega el token CSRF al formulario
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+    
+            // Agrega el valor de búsqueda al formulario
+            const idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'id';
+            idInput.value = search;  // Usa el valor de búsqueda
+            form.appendChild(idInput);
+    
+            // Agrega el formulario al documento y envíalo
+            document.body.appendChild(form);
+            form.submit(); 
+        }
+
+        function validateDecimal(input) {
+            let value = input.value;
+            let filteredValue = "";
+            let commaCount = 0; 
+        
+            for (let i = 0; i < value.length; i++) {
+                const char = value[i];
+        
+                if ("0123456789".includes(char)) {
+                    filteredValue += char;
+                } else if (char === "," && commaCount === 0) {
+                    filteredValue += char;
+                    commaCount++;
+                }
+            }
+        
+            if (filteredValue.length > 10) {
+                filteredValue = filteredValue.slice(0, 10);
+            }
+            input.value = filteredValue;
+        }
+
+        function GuardarMuestras(id) {
+            let muestrasData = [];
+            console.log(id)
+            var SaveFunc = true;
+            // Obtener todas las filas de la tabla
+            let filas = document.querySelectorAll("table tbody tr");
+        
+            // Verificar si no hay filas en la tabla
+            if (filas.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Advertencia',
+                    text: 'Las muestras ya se guardaron anteriormente o no hay datos disponibles.',
+                    confirmButtonText: 'OK'
+                });
+                return; // Detener la ejecución de la función si no hay filas
+            }
+        
+            // Recorrer todas las filas de la tabla
+            filas.forEach(function(row) {
+                // Verificar que la fila tenga celdas y que la primera celda (ID de muestra) exista
+                if (row.cells.length === 0) {
+                    SaveFunc = false;
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Advertencia',
+                        text: 'Las muestras ya se guardaron anteriormente o no hay datos disponibles.',
+                        confirmButtonText: 'OK'
+                    });
+                    return; // Detener la ejecución de la función
+                }
+        
+                // Obtener el Prefijo (ID de muestra) y el peso_m
+                let prefijo = row.cells[1].textContent.trim();
+                let pesoInput = row.querySelector("input[name^='peso_m_']");
+        
+                // Verificar si el input de peso_m existe antes de obtener su valor
+                if (pesoInput === null) {
+                    SaveFunc = false;
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Advertencia',
+                        text: 'Las muestras ya se guardaron anteriormente o no hay datos disponibles.',
+                        confirmButtonText: 'OK'
+                    });
+                    return; // Detener la ejecución de la función
+                }
+        
+                let peso_m = pesoInput.value.trim();
+        
+                // Agregar los datos al array
+                muestrasData.push({
+                    prefijo: prefijo,
+                    peso_m: peso_m
+                });
+            });
+
+
+            if(SaveFunc)
+            {
+                fetch('/Save-M/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value // CSRF token
+                    },
+                    body: JSON.stringify({
+                        muestras: muestrasData,
+                        id: id
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Muestras guardadas',
+                            text: 'Las muestras se guardaron correctamente.',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Redirigir a una página específica después de guardar
+                            window.location.href = "/Hoja-Trabajo/";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Hubo un error al guardar las muestras.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de comunicación',
+                        text: 'Hubo un problema al intentar enviar los datos.',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            }
+        }
+    
+        // Función para confirmar las muestras
+        function confirmarMuestras(id) {
+            let muestrasData = [];
+            let SaveFunc = true; // Bandera para verificar si se deben enviar los datos
+            
+            // Obtener todas las filas de la tabla
+            let filas = document.querySelectorAll("table tbody tr");
+        
+            // Verificar si no hay filas en la tabla
+            if (filas.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Advertencia',
+                    text: 'Las muestras ya se confirmaron anteriormente o no hay datos disponibles.',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+        
+            // Confirmación antes de procesar los datos
+            Swal.fire({
+                title: '¿Seguro que quieres finalizar los valores?',
+                text: "No podrás revertir esta acción.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, finalizar',
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Recorrer todas las filas de la tabla
+                    filas.forEach(function(row) {
+                        if (row.cells.length === 0) {
+                            SaveFunc = false;
+                            return;
+                        }
+        
+                        let prefijo = row.cells[1].textContent.trim();
+                        let pesoInput = row.querySelector("input[name^='peso_m_']");
+        
+                        if (!pesoInput) {
+                            SaveFunc = false;
+                            return;
+                        }
+        
+                        let peso_m = pesoInput.value.trim();
+        
+                        // Verificar si el valor es 0.0 o nulo
+                        if (!peso_m || parseFloat(peso_m) === 0.0) {
+                            SaveFunc = false;
+                        }
+        
+                        muestrasData.push({
+                            prefijo: prefijo,
+                            peso_m: peso_m
+                        });
+                    });
+        
+                    // Validación de valores
+                    if (!SaveFunc) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Valores inválidos',
+                            text: 'No se puede finalizar si existen valores vacíos o en 0.0. Revisa los datos.',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    }
+        
+                    // Enviar los datos si SaveFunc es verdadero
+                    fetch('/Confirm-M/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify({
+                            muestras: muestrasData,
+                            id: id
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Muestras confirmadas',
+                                text: 'Las muestras fueron confirmadas correctamente.',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = "/Hoja-Trabajo/";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Hubo un error al confirmar las muestras.',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de comunicación',
+                            text: 'Hubo un problema al intentar enviar los datos.',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Operación cancelada',
+                        text: 'No se realizaron cambios.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

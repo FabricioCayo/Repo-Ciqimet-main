@@ -1,0 +1,293 @@
+{% load static %}
+<!DOCTYPE html>
+{% include 'header.html'%}
+{% csrf_token %}
+<html lang="es"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ODT Display</title>
+</head>
+<style>
+    body {
+        background-color: #c5c5c5;
+        font-family: Arial, Helvetica, sans-serif;
+        }
+    h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #fcc058;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+    .odt-wrapper {
+        max-width: 80%;
+        margin: 20px auto;
+        padding: 15px 20px;
+        background-color: white;
+        border-radius: 10px;
+        border: 3px solid #fcc058; /* << ESTE es el borde amarillo */
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .odt-wrapper .btn {
+        background-color: #214c67;
+        border: none;
+        color: white;
+        font-weight: bold;
+        padding: 8px 12px;
+        transition: background-color 0.3s ease;
+    }
+
+    .odt-wrapper .btn:hover {
+        background-color: #163347;
+        color: white; /* Corregido: que siga siendo blanco al hacer hover */
+    }
+
+    .odt-wrapper .btn-primary {
+        background-color: #fcc058;
+        color: black;
+    }
+
+    .odt-wrapper .btn-primary:hover {
+        background-color: #e0a046;
+        color: black; /* Aseguramos que se mantenga visible */
+    }
+</style>
+    <div class="odt-wrapper">
+        <h1 style="font-size: 3rem;">Hoja de Trabajo</h1>
+        <div class="container">
+            <div class="row align-items-end">
+                <!-- Estado -->
+                <div class="col-md-4 mb-3">
+                    <label for="filter-state">Estado:</label>
+                    <div>
+                        <input type="radio" name="estado" value="Pendiente" {% if request.GET.estado == 'Pendiente' %}checked{% endif %}> Pendientes 
+                        <input type="radio" name="estado" value="Cerrado" {% if request.GET.estado == 'Cerrado' %}checked{% endif %}> Cerradas 
+                        <input type="radio" name="estado" value="Todas" {% if request.GET.estado == 'Todas' %}checked{% endif %}> Todas
+                    </div>
+                </div>
+
+                <!-- Buscar (70% del ancho) -->
+                <div class="col-md-4 mb-3">
+                    <label for="search-box">Buscar hoja:</label>
+                    <input id="search-box" type="text" class="form-control" style="width: 70%;" placeholder="Buscar Nro Hoja..." value="{{ request.GET.search }}">
+                </div>
+
+                <!-- Botones -->
+                <div class="col-md-4 mb-3">
+                    <label>&nbsp;</label>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-primary" onclick="applyFilters()">Filtrar Órdenes</button>
+                        <button class="btn" onclick="window.location.href = '/Puesto-trabajo/'">Atrás</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>      
+
+    <div class="table-container table-responsive">
+        <table class="table table-bordered">
+            <thead style="background-color: #002d72; color: rgb(255, 255, 255);">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nro Hoja de Trabajo</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">ODT</th>
+                    <th scope="col">Estandar</th>
+                    <th scope="col">Método de Análisis</th>
+                    <th scope="col">Muestra Masificada</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Duplicado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ht in hts %}
+                <tr data-ht-id="{{ ht.ID_HDT }}">
+                    <td>{{ ht.id }}</td>
+                    <td>{{ ht.ID_HDT }}</td>
+                    <td>
+                        {% if ht.confirmar_balanza %}
+                            Cerrado
+                        {% else %}
+                            Pendiente
+                        {% endif %}
+                    </td>
+                    <td>{{ ht.odt }}</td>
+                    <td>
+                        {% if ht.Estandar.all %}
+                            {% for estandar in ht.Estandar.all %}
+                                {{ estandar.Nombre }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Ninguno
+                        {% endif %}
+                    </td>
+                    <td>{{ ht.MetodoAnalisis }}</td>
+                    <td>{{ ht.MuestraMasificada }}</td>
+                    <td>{{ ht.Tipo }}</td>
+                    <td>{{ ht.Duplicado }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>          
+    </div>
+    {% include 'Footer.html' %}
+    
+    <script>
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        
+        document.querySelectorAll('tr[data-ht-id]').forEach(row => {
+            row.addEventListener('click', function () {
+                var htId = this.getAttribute('data-ht-id');
+        
+                // Muestra el SweetAlert con tres opciones
+                Swal.fire({
+                    title: 'Selecciona una opción',
+                    text: `¿Qué deseas hacer con esta hoja de trabajo ${htId}?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Ver Información',
+                    footer: `
+                        <button id="balanzaButton" class="swal2-confirm btn btn-primary" style="margin-right: 10px;">Balanza</button>
+                        <button id="absorcionButton" class="swal2-confirm btn btn-secondary">Absorción</button>
+                    `,
+                    customClass: {
+                        actions: 'swal2-actions'
+                    },
+                    willOpen: () => {
+                
+                        document.getElementById('balanzaButton').addEventListener('click', function () {
+
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = '/Balanza/';
+        
+                            const csrfInput = document.createElement('input');
+                            csrfInput.type = 'hidden';
+                            csrfInput.name = 'csrfmiddlewaretoken';
+                            csrfInput.value = csrfToken;
+                            form.appendChild(csrfInput);
+                        
+                            const idInput = document.createElement('input');
+                            idInput.type = 'hidden';
+                            idInput.name = 'id';
+                            idInput.value = htId;
+                            form.appendChild(idInput);
+                        
+                            document.body.appendChild(form);
+                            form.submit(); 
+                        });
+                
+                        document.getElementById('absorcionButton').addEventListener('click', function () {
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = '/Puesto-Absorcion/';
+        
+                            const csrfInput = document.createElement('input');
+                            csrfInput.type = 'hidden';
+                            csrfInput.name = 'csrfmiddlewaretoken';
+                            csrfInput.value = csrfToken;
+                            form.appendChild(csrfInput);
+                        
+                            const idInput = document.createElement('input');
+                            idInput.type = 'hidden';
+                            idInput.name = 'id';
+                            idInput.value = htId;
+                            form.appendChild(idInput);
+                        
+                            document.body.appendChild(form);
+                            form.submit(); 
+                        });
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Realizar la petición AJAX para obtener la información de la hoja de trabajo
+                        fetch(`/Get-HDT/?id=${htId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.muestras && data.muestras.length > 0) {
+                                    let tablaHTML = `
+                                        <div class="message-table-container"><div class="container"> <!-- Contenedor con scroll lateral -->
+                                            <table class="message-table table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Muestra Masificada</th>
+                                                        <th>Estado</th>
+                                                        <th>Estandar</th>
+                                                        <th>Método de Análisis</th>
+                                                        <th>Tipo</th>
+                                                        <th>Duplicado</th>
+                                                        <th>Elementos</th>
+                                                        <th>Peso y Elemento</th> <!-- Nueva columna para el peso y el elemento -->
+                                                    </tr>
+                                                </thead>
+                                                <tbody>`;
+
+                                    // Agregar cada fila de datos
+                                    data.muestras.forEach(muestra => {
+                                        // Concatenar los elementos en una sola línea de texto con salto de línea
+                                        let elementosText = muestra.elementos.map(elemento => 
+                                            `${elemento.nombre} (${elemento.gramos}g / ${elemento.miligramos}ml)`
+                                        ).join('<br/>'); // Usa <br/> para salto de línea entre elementos
+
+                                        // Agregar salto de línea en peso y elemento
+
+                                        tablaHTML += `
+                                            <tr>
+                                                <td>${muestra.muestra_masificada}</td>
+                                                <td>${muestra.estado}</td>
+                                                <td>${muestra.estandar}</td>
+                                                <td>${muestra.metodo_analisis}</td>
+                                                <td>${muestra.tipo}</td>
+                                                <td>${muestra.duplicado}</td>
+                                                <td>${elementosText}</td>
+                                                <td>${muestra.peso_muestra}</td> <!-- Mostrar el peso y el elemento con salto de línea -->
+                                            </tr>`;
+                                    });
+
+                                    tablaHTML += `</tbody></table></div>`;
+    
+        
+                                    // Mostrar la tabla dentro de un SweetAlert2 responsivo
+                                    Swal.fire({
+                                        title: 'Información de la Hoja de Trabajo ' + htId,
+                                        html: tablaHTML,
+                                        width: '80%',
+                                        showCancelButton: false,
+                                        confirmButtonText: 'Cerrar',
+                                        customClass: {
+                                            popup: 'big-swal', // Clase personalizada para el popup grande
+                                        }
+                                    });
+                                } else {
+                                    Swal.fire('No se encontraron datos', 'No se encontraron muestras para esta Hoja de Trabajo.', 'warning');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error al obtener la información:', error);
+                                Swal.fire('Error', 'Hubo un problema al obtener la información. Intenta nuevamente.', 'error');
+                            });
+                    }
+                });
+            });
+        });
+
+        function applyFilters() {
+            var search = document.getElementById('search-box').value;
+            var estado = document.querySelector('input[name="estado"]:checked') ? document.querySelector('input[name="estado"]:checked').value : ''; // Obtener el valor del radio seleccionado
+        
+            var url = new URL(window.location.href);
+            url.searchParams.set('search', search);
+            if (estado) {
+                url.searchParams.set('estado', estado);
+            }
+            window.location.href = url.toString();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1255 @@
+{% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" href="{% static 'rest_framework/img/favicon.ico' %}" type="image/x-icon">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <style>
+        #profile-icon {
+            width: 45px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        #profile-icon:hover {
+            transform: scale(1.05);
+            cursor: pointer;
+        }
+        /* === GENERAL === */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .col {
+            margin: 0 10px;
+        }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* === HEADER === */
+        .header {
+            background-color: #214c67;
+            padding: 5px 10%;
+            position: relative;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header .logo img {
+            height: 80px;
+            transition: all 0.3s;
+            position: relative;
+            right: 50%;
+            cursor: pointer;
+        }
+
+        .header .logo img:hover {
+            transform: scale(1.1);
+        }
+
+        .header .nav {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .header .nav-links .dropdown {
+            position: relative;
+            right: 17.5%;
+        }
+
+        .header .nav-links .dropdown-toggle {
+            color: #eceff1;
+            text-decoration: none;
+            padding: 15px;
+        }
+
+        .header .nav-links .dropdown-toggle:hover {
+            color: #fcc058;
+        }
+
+        .header .nav-links .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: #103349ef;
+            list-style: none;
+            padding: 10px;
+            margin: 0;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            top: 100%;
+            left: 0;
+            border: 1px solid #eceff1;
+        }
+
+        .header .nav-links .dropdown-menu.show {
+            display: block;
+        }
+
+        .header .nav-links .dropdown-menu li {
+            padding: 10px;
+            border-bottom: 1px solid #eceff1;
+        }
+
+        .header .nav-links .dropdown-menu a {
+            color: #eceff1;
+            text-decoration: none;
+            display: block;
+            transition: color 0.3s, background-color 0.3s;
+        }
+
+        .header .nav-links .dropdown-menu a:hover {
+            color: #fcc058;
+            background-color: #103349;
+        }
+
+        .header .btn button {
+            font-weight: 700;
+            color: #1b3039;
+            padding: 9px 25px;
+            background: #eceff1;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .header .btn button:hover {
+            background-color: #000000;
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .dropdown-item,
+        .nav-link {
+            cursor: pointer;
+            text-decoration: none; /* Por si algún navegador lo subraya por defecto */
+        }
+
+        .dropdown-item:hover,
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+
+        /* === MENÚ RESPONSIVE === */
+        @media (max-width: 1058px) {
+            .header .menu-toggle {
+                display: block;
+                background: none;
+                border: none;
+                cursor: pointer;
+                z-index: 2;
+                position: absolute;
+                top: 50px;
+                right: 15px;
+            }
+
+            .header .menu-icon {
+                width: 30px;
+                height: 3px;
+                background-color: #eceff1;
+                display: block;
+                position: relative;
+                margin: 6px 0;
+            }
+
+            .header .menu-icon::before,
+            .header .menu-icon::after {
+                content: '';
+                width: 30px;
+                height: 3px;
+                background-color: #eceff1;
+                display: block;
+                position: absolute;
+                left: 0;
+            }
+
+            .header .menu-icon::before {
+                top: -8px;
+            }
+
+            .header .menu-icon::after {
+                top: 8px;
+            }
+
+            .header .logo img {
+                height: 60px;
+                transition: none;
+                position: relative;
+                right: 20%;
+            }
+
+            .header .nav {
+                display: none;
+                flex-direction: column;
+                background-color: #164766f0;
+                padding: 0;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                z-index: 1;
+            }
+
+            .header .nav.show {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #profile-icon {
+                width: 40px;
+                height: 40px;
+                top: 3%;
+            }
+        }
+
+        /* === EXTRA CARD === */
+        .extra-card {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1050;
+            background-color: #164866;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+            transform: translateX(-100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.4s ease, opacity 0.4s ease, visibility 0s ease 0.4s;
+        }
+
+        .extra-card.show {
+            transform: translateX(0);
+            opacity: 1;
+            visibility: visible;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        .extra-card .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .extra-card .nav-links .dropdown-toggle {
+            font-size: 1.2rem;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .extra-card .dropdown-arrow {
+            border-top: 8px solid #eceff1;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            margin-left: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .extra-card .dropdown-arrow.rotate {
+            transform: rotate(180deg);
+        }
+
+        .extra-card .nav-links .dropdown-menu {
+            display: none;
+            background-color: #11364d;
+            padding: 0;
+            margin: 0;
+            border-radius: 5px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #eceff1;
+        }
+
+        .extra-card .nav-links .dropdown-menu.show {
+            display: block;
+        }
+
+        .extra-card .nav-links .dropdown-menu li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #164866;
+            color: #eceff1;
+        }
+
+        .extra-card .nav-links .dropdown-menu li:last-child {
+            border-bottom: none;
+        }
+
+        .extra-card .nav-links .dropdown-menu a {
+            color: #eceff1;
+            font-size: 1.1rem;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            padding: 10px;
+        }
+
+        .extra-card .nav-links .dropdown-menu a:hover {
+            background-color: #143f5a;
+            color: #fcc758;
+        }
+
+        .extra-card .nav-links .nav-item.dropdown a:focus,
+        .extra-card .nav-links .nav-item.dropdown a:active {
+            color: #b0bec5;
+            background-color: #164866;
+            border: 2px solid #ffffff;
+            outline: none;
+            border-radius: 5px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        @media (min-width: 768px) {
+            .extra-card {
+                width: 45%;
+            }
+        }
+
+        /* === USER CARD === */
+        .user-card {
+            width: 300px;
+            position: fixed;
+            top: -100%;
+            right: 20px;
+            transition: top 1s ease-in-out;
+            z-index: 1000;
+            display: none;
+            background: #dcdcdc;
+            border-radius: 5%;
+            color: #000000;
+            border: 1px solid #000000;
+        }
+
+        .user-card.visible {
+            top: 0px;
+            display: block;
+        }
+
+        #user-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+
+        /* === BOTONES === */
+        .btn-edit, .btn-delete {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .btn-edit {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-edit:hover, .btn-delete:hover {
+            opacity: 0.8;
+        }
+
+        .sticky-btn {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px;
+            cursor: pointer;
+        }
+
+        /* === TABLAS === */
+        .table-container {
+            padding: 10px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 98%;
+            max-width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+            min-height: 450px;
+            margin: 10px auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        th {
+            background-color: #164766f0;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #e9ecef;
+        }
+
+        tr:hover {
+            background-color: #d1ecf1;
+        }
+
+        td {
+            color: #343a40;
+            text-align: center;
+        }
+
+        .mensaje-table-container {
+            overflow-x: auto;
+            max-height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            margin: 10px 0;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .mensaje-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .mensaje-table thead th {
+            background-color: #002d72;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .mensaje-table tbody tr:nth-child(even) {
+            background-color: #f1f1f1;
+        }
+
+        .mensaje-table tbody tr:hover {
+            background-color: #e0e0e0;
+        }
+
+        .mensaje-table th,
+        .mensaje-table td {
+            padding: 8px;
+            white-space: nowrap;
+        }
+
+        .message-table {
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .message-table table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .message-table th,
+        .message-table td {
+            text-align: center;
+            word-wrap: break-word;
+            padding: 8px;
+        }
+
+        /* === SWEETALERT === */
+        .big-swal {
+            max-width: 95%;
+            overflow: hidden;
+        }
+
+        .vertical-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* === MEDIA QUERIES === */
+        @media (min-width: 998px) {
+            .header .menu-toggle {
+                display: none;
+            }
+
+            .perfil-Button {
+                position: absolute;
+                bottom: 35%;
+                right: 2.5%;
+                cursor: pointer;
+            }
+        }
+
+        @media (min-width: 998px) {
+            .extra-card {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 990px) and (max-width: 1200px) {
+            .header .nav-links .dropdown {
+                position: relative !important;
+                right: 0% !important;
+            }
+
+            .header .logo img {
+                height: 80px;
+                transition: all 0.3s;
+                position: relative !important;
+                right: 150% !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .button-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .col {
+                flex: 1;
+                min-width: 250px;
+                margin: 10px 0;
+            }
+
+            .filters,
+            .actions,
+            .add-odt {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0;
+                margin: 0 auto;
+            }
+
+            .filters {
+                text-align: center;
+                padding: 15px;
+            }
+
+            .perfil-Button {
+                position: absolute;
+                bottom: 30%;
+                right: 15%;
+                cursor: pointer;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <button class="menu-toggle" aria-label="Toggle navigation"  onclick="toggleExtraCard()">
+                <span class="menu-icon"></span>
+            </button>
+            <div class="logo">
+                <img src="{% static 'rest_framework/img/Logocapture-removebg-preview.png' %}" alt="Logo de la marca" onclick="returnMenu()">
+            </div>
+            <nav class="nav">
+                <ul class="nav-links">
+                    <!-- Menú desplegable Órdenes de Trabajo -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="ordersDropdown" role="button" aria-expanded="false">
+                            Órden de Trabajo
+                            <span class="dropdown-arrow"></span> <!-- Flecha hacia abajo -->
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="ordersDropdown">
+                            <li><a class="dropdown-item" onclick="NavigationFunc(1)">Ver ordenes de trabajo</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(2)">Añadir orden de trabajo</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(4)">Ver análisis</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(5)">Añadir análisis</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(6)">Ver elementos</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(7)">Añadir elementos</a></li>
+                        </ul>
+                    </li>
+                    <!-- Menú desplegable Puesto de Trabajo (Balanza de Muestras) -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="balanzaDropdown" role="button" aria-expanded="false">
+                            Puesto de Muestras de Balanza 
+                            <span class="dropdown-arrow"></span> <!-- Flecha hacia abajo -->
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="balanzaDropdown">
+                            <li><a class="dropdown-item" onclick="showInputModal(1)">Abrir plantilla HDT</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(8)">Acceder Sección de trabajo</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(9)">Acceder Balanza</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(10)">Acceder hojas de trabajo</a></li>
+                        </ul>
+                    </li>
+                    <!-- Menú desplegable Puesto de Trabajo Instrumental -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="instrumentalDropdown" role="button" aria-expanded="false">
+                            Puesto de Trabajo Instrumental
+                            <span class="dropdown-arrow"></span> <!-- Flecha hacia abajo -->
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="instrumentalDropdown">
+                            <li><a class="dropdown-item" onclick="showInputModal(2)">Abrir plantilla HDT</a></li>
+                            <li><a class="dropdown-item" onclick="showInputModal(3)">Abrir Lote de absorción</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(11)">Acceder sección de absorción</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <div class="perfil-Button">
+                <img id="profile-icon" src="{% static 'rest_framework/img/usuario.png' %}" alt="Perfil" onclick="ShowUser()">
+            </div>
+            
+        </div>
+    </header>
+    <body>
+        <div id="extra-card" class="col-md-2 extra-card StyleCard-style">
+            <div>
+            <nav class="nav">
+                <ul class="nav-links">
+                    <!-- Menú desplegable Órdenes de Trabajo -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="ordersDropdownMobile" role="button" aria-expanded="false">
+                            Órdenes de Trabajo
+                            <span class="dropdown-arrow"></span> <!-- Flecha hacia abajo -->
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="ordersDropdownMobile">
+                            <li><a class="dropdown-item" onclick="NavigationFunc(1)">Ver ordenes de trabajo</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(2)">Añadir orden de trabajo</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(4)">Ver análisis</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(5)">Añadir análisis</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(6)">Ver elementos</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(7)">Añadir elementos</a></li>
+                        </ul>
+                    </li>
+                    <br/><br/>
+                    <!-- Menú desplegable Puesto de Trabajo (Balanza de Muestras) -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="balanzaDropdownMobile" role="button" aria-expanded="false">
+                            Puesto de Muestras de Balanza
+                            <span class="dropdown-arrow"></span> <!-- Flecha hacia abajo -->
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="balanzaDropdownMobile">
+                            <li><a class="dropdown-item" onclick="showInputModal(1)">Abrir plantilla HDT</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(8)">Acceder Sección de trabajo</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(9)">Acceder Balanza</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(10)">Acceder hojas de trabajo</a></li>
+                        </ul>
+                    </li>
+                    <br/><br/>
+                    <!-- Menú desplegable Puesto de Trabajo Instrumental -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="instrumentalDropdownMobile" role="button" aria-expanded="false">
+                            Puesto de Trabajo Instrumental
+                            <span class="dropdown-arrow"></span> <!-- Flecha hacia abajo -->
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="instrumentalDropdownMobile">
+                            <li><a class="dropdown-item" onclick="showInputModal(2)">Abrir plantilla HDT</a></li>
+                            <li><a class="dropdown-item" onclick="showInputModal(3)">Abrir Lote de absorción</a></li>
+                            <li><a class="dropdown-item" onclick="NavigationFunc(11)">Acceder sección de absorción</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+            <div class="sticky-btn">
+                <button class="btn btn-primary" onclick="toggleExtraCard()">Regresar</button>
+            </div>
+        </div>
+
+        <div class="user-card shadow-lg p-4 rounded container">
+            <div class="d-flex align-items-center">
+                <br/>
+                <div>
+                    <h5 class="mb-1" id="card-user-username">John Doe</h5>
+                    <p class="mb-0 text-muted" id="card-user-email">johndoe@example.com</p>
+                    <p class="mb-0 text-muted" id="card-user-role">Trabajador quimico</p>
+                </div>
+            </div>
+            <button class="btn btn-info mt-3" onclick="confirmLogout()">Cerrar Sesión</button>
+            <button class="btn btn-info mt-3" onclick="window.location.href='/perfil/'">Perfil</button>
+            <button class="btn btn-light mt-3" onclick="ShowUser()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="15" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"></path><path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"></path></svg>
+            </button>
+                <br/><br/>
+        </div>
+    </div>
+    </body>
+    <script>
+    document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+        let cancelado = false;
+
+        // Cerrar el menú lateral si está abierto
+        const extraCard = document.getElementById("extra-card");
+        if (extraCard && extraCard.classList.contains("show")) {
+            extraCard.classList.remove("show");
+            console.log("Menú lateral cerrado con ESC");
+            cancelado = true;
+        }
+
+        // Cerrar el modal de usuario si está visible
+        const userCard = document.querySelector(".user-card");
+        if (userCard && userCard.classList.contains("visible")) {
+            userCard.classList.remove("visible");
+            setTimeout(() => {
+                userCard.style.display = "none";
+            }, 1000);
+            console.log("User modal cerrado con ESC");
+            cancelado = true;
+        }
+
+        // Cerrar SweetAlert si está activa
+        if (Swal.isVisible()) {
+            Swal.close();
+            console.log("SweetAlert cerrada con ESC");
+            cancelado = true;
+        }
+
+        if (!cancelado) {
+            console.log("ESC presionado pero nada estaba abierto.");
+        }
+    }
+});
+
+    </script>
+
+    <!-- Uso de códigos JS de estilos de página web, peticiones y mensajes -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-0q4D8HpohF3oBuKTVBSCgA0AKuqNf4+K5B5XtO/DdqtH5KzvZbKb1dfU+lj7RQc4" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz4fnFO9O2md6zPzEjjr4cO/Y28HhNR83Xf8Dd8YwNY2j1fTZjK5s5T1vB" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    
+    
+    <script>
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        LocalPath1 = ""
+        RedirecPath = ""
+        LocalPath = ""
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const dropdownToggles = document.querySelectorAll('.nav-link.dropdown-toggle');
+            const extraCard = document.getElementById('extra-card');
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navbar = document.querySelector('nav.nav');
+        
+            // Función para cerrar todos los dropdowns
+            function closeAllDropdowns() {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                    const toggle = menu.previousElementSibling;
+                    if (toggle && toggle.classList.contains('nav-link')) {
+                        const arrow = toggle.querySelector('.dropdown-arrow');
+                        if (arrow) arrow.classList.remove('rotate');
+                    }
+                });
+            }
+        
+            // Manejar clic en los dropdown toggles
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const dropdownMenu = this.nextElementSibling;
+                    const dropdownArrow = this.querySelector('.dropdown-arrow');
+                    const isOpen = dropdownMenu.classList.contains('show');
+                    
+                    // Cerrar todos los demás dropdowns
+                    closeAllDropdowns();
+                    
+                    // Abrir el actual si no estaba abierto
+                    if (!isOpen) {
+                        dropdownMenu.classList.add('show');
+                        if (dropdownArrow) dropdownArrow.classList.add('rotate');
+                    }
+                });
+            });
+        
+            // Manejar clic en cualquier parte del documento
+            document.addEventListener('click', function(event) {
+                // Cerrar dropdowns si se hace clic fuera del navbar
+                if (!event.target.closest('nav.nav') && !event.target.closest('.dropdown-menu')) {
+                    closeAllDropdowns();
+                }
+                
+                // Lógica original para el extra-card
+                if (extraCard && !extraCard.contains(event.target) && menuToggle && !menuToggle.contains(event.target)) {
+                    extraCard.classList.remove('show');
+                }
+            });
+        
+            // Prevenir que se cierre al hacer clic dentro del dropdown
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+        });
+        
+    
+        function toggleExtraCard() {
+            var extraCard = document.getElementById('extra-card');
+            if (extraCard.classList.contains('show')) {
+                extraCard.classList.remove('show');
+            } else {
+                extraCard.classList.add('show');
+            }
+        }
+    
+        function ShowUser() {
+            var userCard = document.querySelector(".user-card");
+    
+            if (userCard) {
+                if (userCard.classList.contains("visible")) {
+                    userCard.classList.remove("visible");
+                    setTimeout(function() {
+                        userCard.style.display = "none";
+                    }, 1000);
+                } else {
+                    userCard.style.display = "block";
+                    setTimeout(function() {
+                        userCard.classList.add("visible");
+                    }, 10);
+                }
+            } else {
+                console.error("El elemento con id 'user-card' no existe.");
+            }
+        }
+  
+
+        function returnMenu() {
+            Swal.fire({
+                title: 'Ir a menú',
+                text: 'Elige a dónde deseas ir:',
+                icon: 'question',
+                showCancelButton: true,
+                showConfirmButton: true,
+                confirmButtonText: 'Plataforma de Administrador',
+                cancelButtonText: 'Cancelar',
+                footer: `
+                    <div class="button-container">
+                        <button id="intranetButton" class="swal2-confirm btn btn-primary">Intranet</button>
+                        <button id="publicSiteButton" class="swal2-confirm btn btn-primary">Sitio Público</button>
+                        <button id="cancelButton" class="swal2-cancel btn btn-danger">Cancelar</button>
+                    </div>
+                `,
+                buttonsStyling: false, 
+                customClass: {
+                    confirmButton: 'swal2-confirm btn btn-primary', 
+                    cancelButton: 'swal2-cancel btn btn-danger', 
+                    actions: 'swal2-actions vertical-buttons'
+                },
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didRender: () => {
+                    // Listener para el botón "Intranet"
+                    const intranetButton = document.getElementById('intranetButton');
+                    if (intranetButton) {
+                        intranetButton.addEventListener('click', () => {
+                            window.location.href = LocalPath + "/index/";
+                        });
+                    }
+                    
+                    // Listener para el botón "Sitio Público"
+                    
+                    const publicSiteButton = document.getElementById('publicSiteButton');
+                    if (publicSiteButton) {
+                        publicSiteButton.addEventListener('click', () => {
+                            window.location.href = LocalPath + "/Inicio/";
+                        });
+                    }
+
+                    const cancelButton = document.getElementById('cancelButton');
+                    if (cancelButton) {
+                        cancelButton.addEventListener('click', () => {
+                         Swal.close();  // Cierra el modal cuando se hace clic en "Cancelar"
+                    });
+                }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = RedirecPath + "/admin/";
+                }
+            });
+        }
+                const style = document.createElement('style');
+        style.innerHTML = `
+        .vertical-buttons {
+            display: flex;
+            flex-direction: column; /* Asegura que los botones estén en una columna */
+            gap: 10px; /* Espacio entre botones */
+        }
+        `;
+        document.head.appendChild(style);
+        
+
+        function confirmLogout() {
+            Swal.fire({
+                title: "¿Estás seguro?",
+                text: "¿Quieres cerrar sesión?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Sí, cerrar sesión",
+                cancelButtonText: "Cancelar",
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                reverseButtons: true,
+                customClass: {
+                    actions: 'vertical-buttons',
+                    confirmButton: 'btn btn-primary',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = LocalPath + "/unlogin/";
+                }
+            });
+        }
+
+        function getUserData() {
+            $.ajax({
+                url: '/api/get-user-data/',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Actualizar datos del usuario
+                    $('#user-email').text(data.email);
+                    $('#user-email').attr('href', `mailto:${data.email}`);
+                    $('#user-username').text(data.full_name);
+                    $('#user-role').text(data.role);
+        
+                    $('#card-user-email').text(data.email);
+                    $('#card-user-username').text(data.full_name);
+                    $('#card-user-role').text(data.role);
+        
+                    let roleImage = ''; 
+                    switch (data.role) {
+                        case 'Supervisor':
+                            roleImage = 'Supervisor_icon.png';
+                            break;
+                        case 'Administrador':
+                            roleImage = 'Admin_icon.png';
+                            break;
+                        case 'Quimico':
+                            roleImage = 'Quimico_icon.png';
+                            break;
+                        default:
+                            console.error('Rol no reconocido:', data.role);
+                            return; 
+                    }
+        
+                    const imagePath = `{% static 'rest_framework/img/` + roleImage + `' %}`;
+                    $('#user-image').attr('src', imagePath);
+        
+                    RedirecPath = data.URLReact;
+                    LocalPath = data.LocalURL;
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al obtener los datos del usuario:', error);
+                }
+            });
+        }
+
+        function NavigationFunc(number)
+        {
+            switch (number) 
+            {
+                case 1:
+                    console.log("Navegando a la sección: Órdenes de Trabajo");
+                    window.location.href = LocalPath + "/ODT"
+                    break;
+                case 2:
+                    $.ajax({
+                        url: LocalPath + '/MasterData/',
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: {
+                            'id': -1,
+                            'context': 'ODT',
+                            'action': 'add',
+                            'stade': "acces"
+                        },
+                        success: function(response) {
+                            if (response.redirect_url) {
+                                window.location.href = response.redirect_url; 
+                            } else {
+                                console.log(response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error('Error al enviar datos:', xhr.responseText);
+                        }
+                    });
+
+                    break;
+                case 3:
+                    console.log("Navegando a la sección: Órdenes de Trabajo");
+                    break;
+                case 4:
+                    console.log("Navegando a la sección: Órdenes de Trabajo");
+                    window.location.href = LocalPath + "/Analysis-Manager"
+                    break;
+                case 5:
+                    console.log("Navegando a la sección: Órdenes de Trabajo");
+                    $.ajax({
+                        url: LocalPath + '/MasterData/',
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: {
+                            'id': -1,
+                            'context': 'analytic',
+                            'action': 'add',
+                            'stade': "acces"
+                        },
+                        success: function(response) {
+                            if (response.redirect_url) {
+                                window.location.href = response.redirect_url; 
+                            } else {
+                                console.log(response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error('Error al enviar datos:', xhr.responseText);
+                        }
+                    });
+                break;
+                case 6:
+                console.log("Navegando a la sección: Órdenes de Trabajo");
+                window.location.href = LocalPath + "/Elements-Manager"
+                break;
+                case 7:
+                console.log("Navegando a la sección: Órdenes de Trabajo");
+                    $.ajax({
+                        url: LocalPath + '/MasterData/',
+                        type: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        data: {
+                            'id': -1,
+                            'context': 'element',
+                            'action': 'add',
+                            'stade': "acces"
+                        },
+                        success: function(response) {
+                            if (response.redirect_url) {
+                                window.location.href = response.redirect_url; 
+                            } else {
+                                console.log(response.message);
+                            }
+                        },
+                        error: function(xhr) {
+                            console.error('Error al enviar datos:', xhr.responseText);
+                        }
+                    });
+                break;
+                case 8:
+                console.log("Navegando a la sección puesto de trabajo");
+                    window.location.href = LocalPath + "/Puesto-trabajo/"
+                break;
+                case 9:
+                console.log("Navegando a la sección puesto de balanza");
+                    window.location.href = LocalPath + "/Balanza/"
+                break;
+                case 10:
+                console.log("Navegando a la sección hojas de trabajo");
+                    window.location.href = LocalPath + "/Hoja-Trabajo/"
+                break;
+                case 11:
+                console.log("Navegando a la sección hojas de trabajo");
+                    window.location.href = LocalPath + "/Puesto-Absorcion/"
+                break;
+            }
+        }
+
+
+        function showInputModal(mode) {
+
+            Ruta = ''
+            if(mode == 1)
+            {
+                Ruta = LocalPath + '/Balanza/'
+            }
+            else
+            {
+                Ruta = LocalPath + '/Puesto-Absorcion/'
+            }
+
+            Swal.fire({
+                title: 'Buscar',
+                html: `
+                <label for="search-input" style="display: block; margin-bottom: 10px;">Ingrese un número:</label>
+                <input id="search-input" type="number" placeholder="Ingrese un número" class="swal2-input" style="width: 80%; box-sizing: border-box;">`,
+                showCancelButton: true,
+                confirmButtonText: 'Buscar',
+                cancelButtonText: 'Cancelar',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const inputValue = document.getElementById('search-input').value;
+                    if (!inputValue) {
+                        Swal.showValidationMessage('Debe ingresar un número');
+                        return false;
+                    }
+                    return inputValue;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                        console.log(`Valor ingresado: ${result.value}`);
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = Ruta;
+        
+                            const csrfInput = document.createElement('input');
+                            csrfInput.type = 'hidden';
+                            csrfInput.name = 'csrfmiddlewaretoken';
+                            csrfInput.value = csrfToken;
+                            form.appendChild(csrfInput);
+                        
+                            const idInput = document.createElement('input');
+                            idInput.type = 'hidden';
+
+                            var nameCamp = ''
+
+                            if(mode == 2)
+                            {
+                                nameCamp = 'id'
+                            }
+                            else
+                            {
+                                nameCamp = 'batch'
+                            }
+
+
+                            idInput.name = nameCamp;
+                            idInput.value = `${result.value}`;
+                            form.appendChild(idInput);
+                        
+                            document.body.appendChild(form);
+                            form.submit(); 
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    console.log('Operación cancelada');
+                }
+            });
+        }
+
+
+        
+        $(document).ready(function(){
+            getUserData();
+
+
+            
+            $('[data-bs-toggle="tooltip"]').tooltip(); 
+          });
+
+          function moverFoco(event) {
+            // Verificar si la tecla presionada es "Enter"
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevenir el comportamiento predeterminado de Enter (enviar formulario)
+    
+                // Buscar el siguiente campo de entrada (input)
+                const inputs = document.querySelectorAll('input');
+                const currentIndex = Array.from(inputs).indexOf(event.target);
+    
+                // Mover el foco al siguiente campo si existe
+                if (currentIndex + 1 < inputs.length) {
+                    inputs[currentIndex + 1].focus();
+                }
+            }
+        }
+
+        
+
+    </script>
+    {% if messages %}
+    <ul class="messages">
+        {% for m in messages %}
+                {% if m.tags == 'warning' %}
+                    <script>
+                        Swal.fire({
+                            "title":"¡Nuevo mensaje de la Plataforma!",
+                            "text":"{{m}}",
+                            "icon":"{{m.tags}}",
+                            "showCancelButton":true,
+                            "cancelButtonText":"No, Cancelar",
+                            "confirmButtonText":"Si, Eliminar",
+                            "reverseButtons":true,
+                            "confirmButtonColor":"#dc3545"
+                        })
+                    </script>
+                {% else %}
+                    <script>
+                        Swal.fire({
+                            "title":"¡Nuevo mensaje de la Plataforma! ",
+                            "text":"{{m}}",
+                            "icon":"{{m.tags}}"
+                        })
+                    </script>
+                {% endif %}
+
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+
+    
+</body>
+</html>

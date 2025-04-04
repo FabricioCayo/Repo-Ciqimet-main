@@ -1,0 +1,424 @@
+{% load static %}
+{% csrf_token %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" href="{% static 'rest_framework/img/favicon.ico' %}" type="image/x-icon">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <style>
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            background-color: #c5c5c5;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            flex: 1;
+            padding: 2rem;
+            gap: 2rem;
+            background-color: #f0f2f5;
+        }
+
+
+        .registro-documentos {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        .registro-documentos h2 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .registro-documentos .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .registro-documentos table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .registro-documentos th,
+        .registro-documentos td {
+            padding: 6px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .registro-documentos {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 1rem;
+            padding: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 35%;
+            min-width: 280px;
+            max-width: 500px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+
+
+        .registro-documentos tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .modulos-wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            flex: 2;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 2px solid #d1d1d1; /* Borde más visible */
+            border-radius: 1rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25); /* Sombra más fuerte */
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            max-width: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35); /* Sombra más profunda al hacer hover */
+        }
+
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .contenido-card {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .contenido-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 0.75rem;
+            color: #1c1c1c;
+            font-weight: bold;
+        }
+
+        .contenido-card p {
+            flex-grow: 1;
+            font-size: 1.3rem;
+            color: #4b4b4b;
+            margin-bottom: 1rem;
+        }
+
+        .contenido-card .btn {
+            margin: 0.25rem 0;
+            width: 100%;
+            padding: 0.6rem;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 992px) {
+            .main-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .modulos-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .sidebar {
+            padding: 10px;
+            background-color: #f5f7fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-height: 90vh; /* Limita la altura total del sidebar */
+            overflow: hidden; /* Evita que el contenido se desborde */
+        }
+        
+        .table-container {
+            max-height: 45%; /* Cada tabla ocupa la mitad del sidebar */
+            overflow-y: auto; /* Activa el desplazamiento vertical */
+            margin-bottom: 10px; /* Espaciado entre tablas */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            padding: 4px;
+            text-align: left;
+            font-size: 12px;
+        }
+        
+        .table thead th {
+            background-color: #002d72;
+            color: #fff;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn {
+            display: inline-block; /* Para asegurarse de que estén en línea */
+            margin: 5px; /* Espaciado entre botones */
+            padding: 5px;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+        }
+    
+        /* Botón Activo */
+        .btn-active {
+            background-color: #007BFF; /* Azul activo */
+            color: white;
+            border-color: #0056b3;
+        }
+    
+        /* Efecto hover para todos los botones */
+        .btn:hover {
+            background-color: #e9ecef;
+            color: black;
+        }
+    
+        /* Asegurarse de que los botones estén alineados horizontalmente */
+        .buttons-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Espacio entre botones */
+        }
+        .registro-buttons {
+            display: flex;
+            justify-content: center;      /* <-- Centra los botones */
+            gap: 10px;                    /* <-- Espacio entre ellos */
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .custom-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1c1c1c;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.1);
+            text-align: center; /* <-- Esto centra el texto */
+        }
+
+
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <div class="main-wrapper">
+        <!-- Panel Izquierdo - Registro Documentos -->
+        <div class="registro-documentos">
+            <h2 style="text-align: center;">Registros de documentos</h2>
+
+            <div class="registro-buttons">
+                <button class="btn btn-active" onclick="window.location.href='/index'">Atras</button>
+                <button class="btn btn-active" onclick="mostrarTabla('acciones-registros', this)">Acciones generales</button>
+                <button class="btn btn-active" onclick="mostrarTabla('procesos-hojas', this)">Procesos por Balanza</button>
+            </div>
+    
+            <div id="acciones-registros" class="table-container">
+                <h5 class="custom-title text-center">Acciones de Registros</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Acción</th>
+                            <th>ID Registro</th>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for novedad in acciones_registros %}
+                        <tr>
+                            <td>{{ novedad.tipo_model }}</td>
+                            <td>{{ novedad.accion }}</td>
+                            <td>{{ novedad.modelt_id }}</td>
+                            <td>{{ novedad.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>{{ novedad.usuario }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">No hay novedades registradas.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    
+            <div id="procesos-hojas" class="table-container hidden">
+                <h5 class="custom-title text-center">Procesos de Hojas de Trabajo</h5>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Acción</th>
+                            <th>ID Registro</th>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for novedad in procesos_hojas_trabajo %}
+                        <tr>
+                            <td>{{ novedad.tipo_model }}</td>
+                            <td>{{ novedad.accion }}</td>
+                            <td>{{ novedad.modelt_id }}</td>
+                            <td>{{ novedad.fecha|date:"d/m/Y H:i" }}</td>
+                            <td>{{ novedad.usuario }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">No hay procesos registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    
+
+        <div class="main-content">
+            <div class="title-cards">
+                <h5 class="custom-title text-center">Módulos de Trabajo</h5>
+            </div>
+            <div class="modulos-wrapper">
+                <div class="card">
+                    <img src="{% static 'rest_framework/img/Hoja_Trabajo.jpg' %}" alt="Orden de Trabajo">
+                    <div class="contenido-card">
+                        <h3>Hoja de trabajo</h3>
+                        <p>Registramos y organizamos los datos de tus muestras en una hoja de trabajo eficiente, desde su asignación hasta su análisis.</p>
+                        <button class="btn btn-info" onclick="ShowInfo(1)">Leer Más</button>
+                        <button class="btn btn-success" onclick="window.location.href='/Hoja-Trabajo/'">Ingresar</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="{% static 'rest_framework/img/Puesto_Balanza.jpg' %}" alt="Puesto de Trabajo Normal">
+                    <div class="contenido-card">
+                        <h3>Balanza</h3>
+                        <p>Asignamos los valores precisos a tus muestras mediante la balanza, garantizando exactitud en cada etapa del proceso.</p>
+                        <button class="btn btn-info" onclick="ShowInfo(2)">Leer Más</button>
+                        <button class="btn btn-success" onclick="window.location.href='/Balanza/'">Ingresar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'Footer.html' %}
+</body>
+<script>
+
+    function ShowInfo(value)
+    {
+        console.log("Hola" + value.toString())
+        Contex = ""
+        if (value == "1")
+        {
+            Contex = "Esta sección corresponde a la creación de documentos y registros de orden de trabajo para poder llevar a cabo el inicio de la investigación y análisis de resultados solicitados por los clientes"
+
+        }
+        if (value == "2")
+        {
+
+            Contex = "Esa sección corresponde a la asignación de muestras para realizar el análisis de una orden de trabajo y poder ser procesados por los trabajadores"
+        }
+        if (value == "3")
+        {
+            Contex = "Esta sección corresponde al entorno de análisis que se busca realizar en las asignadas de las órdenes de trabajo y obtener resultados de acuerdo al uso que se le busca dar"
+        }
+        Swal.fire({
+            title: Contex,
+            showClass: {
+            popup: `
+                animate__animated
+                animate__fadeInUp
+                animate__faster
+            `
+            },
+            hideClass: {
+            popup: `
+                animate__animated
+                animate__fadeOutDown
+                animate__faster
+            `
+            }
+        });
+    }
+
+    function mostrarTabla(id, boton) {
+        document.querySelectorAll('.table-container').forEach(function(tabla) {
+            tabla.classList.add('hidden');
+        });
+
+        document.getElementById(id).classList.remove('hidden');
+
+        document.querySelectorAll('.btn').forEach(function(btn) {
+            btn.classList.remove('btn-active');
+        });
+
+        boton.classList.add('btn-active');
+    }
+
+</script>
+</html>

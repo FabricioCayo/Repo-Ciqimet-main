@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    {% include 'public_header.html' %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Noticia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #d5d5d5;
+            font-family: Arial, sans-serif;
+        }
+
+        .form-container {
+            max-width: 650px;
+            margin: 60px auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            border: 3px solid #fcc058;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-container h1 {
+            font-size: 2.2rem;
+            color: #214c67;
+            margin-bottom: 25px;
+            text-align: center;
+            border-bottom: 2px solid #fcc058;
+            padding-bottom: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #214c67;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        textarea {
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 100%;
+            font-size: 14px;
+            margin-bottom: 15px;
+            transition: border 0.2s ease-in-out;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #214c67;
+            box-shadow: 0 0 5px rgba(33, 76, 103, 0.3);
+            outline: none;
+        }
+
+        .btn-primary {
+            background-color: #214c67;
+            border-color: #214c67;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background-color: #163347;
+        }
+
+        .btn-secondary {
+            background-color: #fcc058;
+            border-color: #fcc058;
+            color: #214c67;
+            font-weight: bold;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e0a437;
+            color: #fff;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>Agregar Noticia</h1>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary w-50">Guardar</button>
+                    <a href="{% url 'noticias' %}" class="btn btn-secondary w-50">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
